@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ISENSmartCompanion</string>
+    <string name="title_activity_even_screen">EvenScreen</string>
+    <string name="title_activity_event_detail">EventDetail</string>
+</resources>
