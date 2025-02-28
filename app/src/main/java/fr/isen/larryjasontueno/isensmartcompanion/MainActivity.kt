@@ -61,7 +61,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.ai.client.generativeai.BuildConfig
+import com.google.ai.client.generativeai.GenerativeModel
 import fr.isen.larryjasontueno.isensmartcompanion.ui.theme.ISENSmartCompanionTheme
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -78,8 +84,20 @@ data class TabBarItem(
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalStdlibApi::class)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val generativeModel = GenerativeModel(
+            // Use a model that's applicable for your use case (see "Implement basic use cases" below)
+            modelName = "gemini-pro", // for Text to text
+            // Access your API key as a Build Configuration variable (see "Set up your API key" above)
+            apiKey = "AIzaSyCtLoNEMI2lopIpiGN-gjVYxI0AddOfTeU"
+        )
+
+
+
+
+
         enableEdgeToEdge()
         setContent {
             val homeTab = TabBarItem(title = "Home", selectedIcon = Icons.Filled.Home, unSelectedIcon = Icons.Outlined.Home)
@@ -87,9 +105,7 @@ class MainActivity : ComponentActivity() {
             val HistoryScreen = TabBarItem(title = "History", selectedIcon = Icons.Filled.Menu, unSelectedIcon = Icons.Outlined.Menu)
 
             //Liste de tous les tab
-
             val tabBarItems = listOf(homeTab, EvenScreen, HistoryScreen)
-
             //Controlleur de la barre de navigation
             val navController = rememberNavController()
 
@@ -111,6 +127,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 @Composable
@@ -190,6 +207,7 @@ fun MoreView() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
 //    var textValue = remember { mutableStateOf("") }
+    val scope = CoroutineScope(Dispatchers.IO)
     var textValue = ""
     val context = LocalContext.current
    // by remember { mutableStateOf("") }
@@ -239,7 +257,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                     )
                 Button(onClick = {
                     if (textValue.isNotEmpty()) {
-                        Toast.makeText(context, "Message envoyé : $textValue", Toast.LENGTH_SHORT).show()
+                        val generativeModelImage = GenerativeModel(
+                            // Use a model that's applicable for your use case (see "Implement basic use cases" below)
+                            modelName = "gemini-pro-vision", // For Image to text
+                            // Access your API key as a Build Configuration variable (see "Set up your API key" above)
+                            apiKey = "AIzaSyCtLoNEMI2lopIpiGN-gjVYxI0AddOfTeU"
+                        )
+                        scope.launch {
+                            val response =generativeModelImage.generateContent(textValue)
+                        }
+
                     } else {
                         Toast.makeText(context, "Veuillez entrer un message", Toast.LENGTH_SHORT).show()
                     }
