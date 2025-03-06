@@ -15,11 +15,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 //import androidx.compose.foundation.layout.FlowColumnScopeInstance.weight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
@@ -35,6 +41,8 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -89,14 +98,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val generativeModel = GenerativeModel(
             // Use a model that's applicable for your use case (see "Implement basic use cases" below)
-            modelName = "gemini-pro", // for Text to text
+            modelName = "gemini-1.5-flash", // for Text to text
             // Access your API key as a Build Configuration variable (see "Set up your API key" above)
             apiKey = "AIzaSyCtLoNEMI2lopIpiGN-gjVYxI0AddOfTeU"
         )
-
-
-
-
 
         enableEdgeToEdge()
         setContent {
@@ -206,11 +211,10 @@ fun MoreView() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-//    var textValue = remember { mutableStateOf("") }
     val scope = CoroutineScope(Dispatchers.IO)
-    var textValue = ""
+    var geminiResponse = remember { mutableStateOf("") }
+    var textValue = remember { mutableStateOf("") }
     val context = LocalContext.current
-   // by remember { mutableStateOf("") }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -239,32 +243,60 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 modifier = modifier
             )
             Spacer(modifier = Modifier.weight(1f))
+            Card(
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(250.dp)
+                    .padding(8.dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                        .verticalScroll(rememberScrollState()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = geminiResponse.value,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
             Row (
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 1.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 16.dp, vertical = 100.dp)
+                    .align(Alignment.End),
+                verticalAlignment = Alignment.Bottom
             ) {
                 TextField(
-                    value = textValue,
-                    onValueChange = {  textValue = it },
+                    value = textValue.value,
+                    onValueChange = {  textValue.value = it },
                     modifier = Modifier
                         .weight(1f)
-//                        .padding(end = 8.dp)
-                        .heightIn(max = 48.dp),
+                        .padding(end = 8.dp)
+//                        .heightIn(max = 48.dp)
+                        .fillMaxWidth(),
                     placeholder = { Text("Entrez votre message...") },
                     singleLine = true
                     )
                 Button(onClick = {
-                    if (textValue.isNotEmpty()) {
+                    //textValue="bonjour comment tu vas?"
+                    if (textValue.value.isNotEmpty()) {
                         val generativeModelImage = GenerativeModel(
                             // Use a model that's applicable for your use case (see "Implement basic use cases" below)
-                            modelName = "gemini-pro-vision", // For Image to text
+                            modelName = "gemini-1.5-flash", // for Text to text
                             // Access your API key as a Build Configuration variable (see "Set up your API key" above)
                             apiKey = "AIzaSyCtLoNEMI2lopIpiGN-gjVYxI0AddOfTeU"
                         )
                         scope.launch {
-                            val response =generativeModelImage.generateContent(textValue)
+                            val response =generativeModelImage.generateContent(textValue.value)
+                            geminiResponse.value = "${response?.text}"
+                            println("print2")
+                            println("response: ${response?.text}")
                         }
 
                     } else {
@@ -290,28 +322,26 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 //@Composable
 fun fetchEvents(onResult: (List<Event>) -> Unit) {
-    val call = RetrofitClient.instance.getEvents() // Supposé renvoyer Call<List<Event>>
+    val call = RetrofitClient.instance.getEvents()
 
     call.enqueue(object : Callback<List<Event>> {
         override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
             if (response.isSuccessful) {
                 val eventsList = response.body() ?: emptyList()
                 Log.d("API_SUCCESS", "Liste des événements : $eventsList")
-                onResult(eventsList) // ✅ Transmet les données à l'UI
+                onResult(eventsList)
                 println("eventlist : $eventsList")
             } else {
                 Log.e("API_ERROR", "Erreur : ${response.errorBody()?.string()}")
-                onResult(emptyList()) // Envoie une liste vide en cas d'erreur
+                onResult(emptyList())
             }
         }
-
         override fun onFailure(call: Call<List<Event>>, t: Throwable) {
             Log.e("API_FAILURE", "Erreur de connexion : ${t.message}")
-            onResult(emptyList()) // Envoie une liste vide si l'appel échoue
+            onResult(emptyList())
         }
     })
 }
-
 
 
 @Preview(showBackground = true)
