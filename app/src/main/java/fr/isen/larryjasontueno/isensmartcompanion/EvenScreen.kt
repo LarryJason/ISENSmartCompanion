@@ -89,7 +89,9 @@ fun EventsScreen(){
         .background(Color.White))
     {
         LazyColumn (
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 100.dp)
         ) {
             items(events) {
                 Event -> EventItem(Event)
@@ -133,22 +135,14 @@ fun EventItem(event: Event){
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ){
-//            Image(
-//                painter = painterResource(id = event.imageRes),
-//                contentDescription = event.title,
-//                modifier = Modifier
-//                    .size(80.dp)
-//                    .clip(RoundedCornerShape(8.dp)),
-//                contentScale = ContentScale.Crop
-//            )
             Spacer(modifier = Modifier.width(16.dp))
             Column (
                 modifier = Modifier.weight(1f)
             ) {
                 Text(text = event.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text(text = event.description, fontSize = 14.sp, color = Color.Gray)
+               // Text(text = event.description, fontSize = 14.sp, color = Color.Gray)
                 Text(text = "📅 ${event.date}", fontSize = 12.sp, color = Color.White)
-                Text(text = "📍 ${event.location}", fontSize = 12.sp, color = Color.White)
+                //Text(text = "📍 ${event.location}", fontSize = 12.sp, color = Color.White)
                 Text(text = "🎭 ${event.category}", fontSize = 12.sp, color = Color.White)
             }
         }

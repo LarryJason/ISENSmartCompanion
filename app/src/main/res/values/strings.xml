@@ -2,4 +2,9 @@
     <string name="app_name">ISENSmartCompanion</string>
     <string name="title_activity_even_screen">EvenScreen</string>
     <string name="title_activity_event_detail">EventDetail</string>
+    <string name="title_activity_history_screen">HistoryScreen</string>
+    <string name="title_home_activity">Home</string>
+    <string name="title_events_screen">Events</string>
+    <string name="title_history_screen">History</string>
+    <string name="textvalue_empti">Veuillez entrer un message</string>
 </resources>

@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -105,9 +106,9 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val homeTab = TabBarItem(title = "Home", selectedIcon = Icons.Filled.Home, unSelectedIcon = Icons.Outlined.Home)
-            val EvenScreen = TabBarItem(title = "Event", selectedIcon = Icons.Filled.PlayArrow, unSelectedIcon = Icons.Outlined.PlayArrow)
-            val HistoryScreen = TabBarItem(title = "History", selectedIcon = Icons.Filled.Menu, unSelectedIcon = Icons.Outlined.Menu)
+            val homeTab = TabBarItem(title = stringResource(id = R.string.title_home_activity), selectedIcon = Icons.Filled.Home, unSelectedIcon = Icons.Outlined.Home)
+            val EvenScreen = TabBarItem(title = stringResource(id = R.string.title_events_screen), selectedIcon = Icons.Filled.PlayArrow, unSelectedIcon = Icons.Outlined.PlayArrow)
+            val HistoryScreen = TabBarItem(title = stringResource(id = R.string.title_history_screen), selectedIcon = Icons.Filled.Menu, unSelectedIcon = Icons.Outlined.Menu)
 
             //Liste de tous les tab
             val tabBarItems = listOf(homeTab, EvenScreen, HistoryScreen)
@@ -121,11 +122,10 @@ class MainActivity : ComponentActivity() {
                             Greeting(name = "")
                         }
                         composable(EvenScreen.title) {
-                            //Text(EvenScreen.title)
                             EventsScreen()
                         }
                         composable(HistoryScreen.title) {
-                            Text(HistoryScreen.title)
+                            EventHistory(name = "")
                         }
                     }
                 }
@@ -137,24 +137,24 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TabView( tabBarItems: List<TabBarItem>, navController: NavController ){
-//    var selectedTabIndex by rememberSaveable {
-//        mutableStateOf(0)
-//    }
+    var selectedTabIndex = rememberSaveable {
+        mutableStateOf(0)
+    }
 
-var selectedTabIndex = 0
+//var selectedTabIndex = 0
 
     NavigationBar {
         tabBarItems.forEachIndexed{ index, tabBarItem ->
             NavigationBarItem(
-                selected = selectedTabIndex == index,
+                selected = selectedTabIndex.value == index,
                 onClick = {
-                    selectedTabIndex = index
+                    selectedTabIndex.value = index
                     navController.navigate(tabBarItem.title)
                 },
 
                 icon = {
                     TabBarIconView(
-                        isSelected = selectedTabIndex == index,
+                        isSelected = selectedTabIndex.value == index,
                         selectedIcon = tabBarItem.selectedIcon,
                         unselectedIcon = tabBarItem.unSelectedIcon,
                         title = tabBarItem.title,
@@ -280,7 +280,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                         .padding(end = 8.dp)
 //                        .heightIn(max = 48.dp)
                         .fillMaxWidth(),
-                    placeholder = { Text("Entrez votre message...") },
+                    placeholder = { Text(stringResource(id = R.string.textvalue_empti)) },
                     singleLine = true
                     )
                 Button(onClick = {
@@ -300,6 +300,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                         }
 
                     } else {
+
                         Toast.makeText(context, "Veuillez entrer un message", Toast.LENGTH_SHORT).show()
                     }
                 }
